@@ -1,4 +1,4 @@
-package org.vivrii.studdybudy
+package org.vivrii.studdybudy.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.shape.RoundedCornerShape
