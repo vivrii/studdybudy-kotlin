@@ -24,13 +24,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import org.vivrii.studdybudy.music.MusicViewModel
 import org.vivrii.studdybudy.ui.components.MediaPlayer
 import org.vivrii.studdybudy.ui.extensions.measureWidth
 import org.vivrii.studdybudy.ui.theme.AppTheme
 
 @Composable
 @Preview
-fun App() {
+fun App(viewModel: MusicViewModel) { // todo: probably not passing view models like this
     AppTheme {
         val scope = rememberCoroutineScope()
         val snackbarHostState = remember { SnackbarHostState() }
@@ -76,7 +77,7 @@ fun App() {
                     )
                 }
             },
-            bottomBar = { MediaPlayer() }
+            bottomBar = { MediaPlayer(viewModel) }
         ) { innerPadding ->
             Column(modifier = Modifier.padding(innerPadding)) {
 

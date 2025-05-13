@@ -17,19 +17,14 @@ import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.vectorResource
+import org.vivrii.studdybudy.music.MusicViewModel
 import org.vivrii.studdybudy.ui.extensions.debug
 import studdybudy.composeapp.generated.resources.Res
 import studdybudy.composeapp.generated.resources.pause
@@ -40,7 +35,12 @@ import studdybudy.composeapp.generated.resources.repeat_once
 
 
 @Composable
-fun MediaPlayer() {
+fun MediaPlayer(viewModel: MusicViewModel) {
+    val currentSong by viewModel.currentSong.collectAsState()
+    val playerState by viewModel.playerState.collectAsState()
+    val progress by viewModel.progress.collectAsState()
+    val repeatMode by viewModel.repeatMode.collectAsState()
+
     Box(
         modifier = Modifier
             .padding(12.dp)
@@ -53,24 +53,6 @@ fun MediaPlayer() {
             verticalArrangement = Arrangement.Center,
             modifier = Modifier.fillMaxWidth().padding(24.dp)
         ) {
-            var playing by remember { mutableStateOf(false) }
-            var repeatMode by remember { mutableIntStateOf(0) }
-            var progress by remember { mutableFloatStateOf(0.7f) }
-
-            LaunchedEffect(playing, repeatMode) {
-                while (playing) {
-                    progress += 0.0005555556f
-                    if (progress >= 1.0f) {
-                        if (repeatMode == 0) {
-                            playing = false
-                        } else {
-                            progress = 0.0f
-                        }
-                    }
-                    delay(100)
-                }
-            }
-
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -81,18 +63,18 @@ fun MediaPlayer() {
                     modifier = Modifier.height(48.dp).padding(horizontal = 12.dp).weight(1.0f)
                 ) {
                     Text(
-                        text = "Leave Me Be",
+                        text = currentSong?.title ?: "--",
                         color = MaterialTheme.colors.onSurface,
                         style = MaterialTheme.typography.body1
                     )
                     Text(
-                        text = "Computerwife",
+                        text = currentSong?.artist ?: "--",
                         color = MaterialTheme.colors.onSurface,
                         style = MaterialTheme.typography.caption
                     )
                 }
 
-                if (playing) {
+                if (playerState.isPlaying) {
                     vectorResource(resource = Res.drawable.pause) to "pause button"
                 } else {
                     vectorResource(resource = Res.drawable.play) to "play button"
@@ -103,43 +85,23 @@ fun MediaPlayer() {
                         modifier = Modifier
                             .size(48.dp)
                             .padding(3.dp)
-                            .clickable { playing = !playing },
+                            .clickable { viewModel.playPauseToggle()},
                         tint = MaterialTheme.colors.onSurface
                     )
                 }
 
                 when (repeatMode) {
-                    0 -> {
-                        Triple(
-                            vectorResource(resource = Res.drawable.repeat_off),
-                            "repeat off",
-                            { repeatMode = 1 }
-                        )
-                    }
-
-                    1 -> {
-                        Triple(
-                            vectorResource(resource = Res.drawable.repeat),
-                            "repeat on",
-                            { repeatMode = 2 }
-                        )
-                    }
-
-                    else -> {
-                        Triple(
-                            vectorResource(resource = Res.drawable.repeat_once),
-                            "repeat once",
-                            { repeatMode = 0 }
-                        )
-                    }
-                }.let { (imageVector, contentDescription, onClick) ->
+                    0 -> vectorResource(resource = Res.drawable.repeat_off) to "repeat off"
+                    1 -> vectorResource(resource = Res.drawable.repeat) to "repeat on"
+                    else -> vectorResource(resource = Res.drawable.repeat_once) to "repeat once"
+                }.let { (imageVector, contentDescription) ->
                     Icon(
                         imageVector = imageVector,
                         contentDescription = contentDescription,
                         modifier = Modifier
                             .size(32.dp)
                             .padding(3.dp)
-                            .clickable { onClick() },
+                            .clickable { viewModel.repeatModeCycle() },
                         tint = MaterialTheme.colors.onSurface
                     )
                 }
