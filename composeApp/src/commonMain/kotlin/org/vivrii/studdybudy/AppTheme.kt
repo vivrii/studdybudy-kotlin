@@ -1,11 +1,14 @@
 package org.vivrii.studdybudy
 
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Shapes
 import androidx.compose.material.darkColors
 import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 
 private val LightColorPalette = lightColors(
     primary = Color(0xFF6200EE),
@@ -33,6 +36,12 @@ private val DarkColorPalette = darkColors(
     onSurface = Color.White,
 )
 
+private val Shapes = Shapes(
+    small = RoundedCornerShape(8.dp),
+    medium = RoundedCornerShape(8.dp),
+    large = RoundedCornerShape(32.dp)
+)
+
 @Composable
 fun AppTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
@@ -43,7 +52,7 @@ fun AppTheme(
     MaterialTheme(
         colors = colors,
         typography = MaterialTheme.typography,
-        shapes = MaterialTheme.shapes,
+        shapes = Shapes,
         content = content
     )
 }
