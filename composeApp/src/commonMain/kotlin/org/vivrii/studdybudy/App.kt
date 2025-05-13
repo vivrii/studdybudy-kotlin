@@ -22,7 +22,6 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.SnackbarHost
 import androidx.compose.material.SnackbarHostState
 import androidx.compose.material.Text
-import androidx.compose.material.primarySurface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -35,9 +34,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.vectorResource
@@ -56,6 +53,13 @@ fun App() {
         val scope = rememberCoroutineScope()
         val snackbarHostState = remember { SnackbarHostState() }
 
+        fun showTextSnackbar(text: String) {
+            snackbarHostState.currentSnackbarData?.dismiss()
+            scope.launch {
+                snackbarHostState.showSnackbar(text)
+            }
+        }
+
         Scaffold(
             snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
             topBar = {
@@ -67,23 +71,13 @@ fun App() {
                         val modifier = Modifier.padding(6.dp).measureWidth()
 
                         Button(
-                            onClick = {
-                                snackbarHostState.currentSnackbarData?.dismiss()
-                                scope.launch {
-                                    snackbarHostState.showSnackbar("Randomiser")
-                                }
-                            },
+                            onClick = { showTextSnackbar("Randomiser") },
                             modifier = modifier
                         ) {
                             Text(text = "Randomiser")
                         }
                         Button(
-                            onClick = {
-                                snackbarHostState.currentSnackbarData?.dismiss()
-                                scope.launch {
-                                    snackbarHostState.showSnackbar("Looper")
-                                }
-                            },
+                            onClick = { showTextSnackbar("Looper") },
                             modifier = modifier
                         ) {
                             Text(text = "Looper")
@@ -148,22 +142,17 @@ private fun MediaPlayer() {
                 Column(
                     horizontalAlignment = Alignment.Start,
                     verticalArrangement = Arrangement.Center,
-                    modifier = Modifier.height(48.dp).padding(horizontal = 12.dp)
-                        .weight(1.0f)
+                    modifier = Modifier.height(48.dp).padding(horizontal = 12.dp).weight(1.0f)
                 ) {
                     Text(
                         text = "Leave Me Be",
                         color = MaterialTheme.colors.onSurface,
-                        style = TextStyle(
-                            fontSize = 16.sp,
-                        )
+                        style = MaterialTheme.typography.body1
                     )
                     Text(
                         text = "Computerwife",
                         color = MaterialTheme.colors.onSurface,
-                        style = TextStyle(
-                            fontSize = 12.sp,
-                        )
+                        style = MaterialTheme.typography.caption
                     )
                 }
 
@@ -227,10 +216,6 @@ private fun MediaPlayer() {
                     .clip(MaterialTheme.shapes.small.copy(topStart = CornerSize(0.dp)))
                     .height(6.dp)
             )
-
-            LaunchedEffect(repeatMode, playing) {
-
-            }
         }
     }
 }
