@@ -1,5 +1,6 @@
 package org.vivrii.studdybudy.ui.components
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -23,6 +24,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import io.kamel.image.KamelImage
+import io.kamel.image.asyncPainterResource
 import org.jetbrains.compose.resources.vectorResource
 import org.vivrii.studdybudy.music.MusicViewModel
 import org.vivrii.studdybudy.ui.extensions.debug
@@ -56,7 +59,19 @@ fun MediaPlayer(viewModel: MusicViewModel) {
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Box(modifier = Modifier.width(48.dp).height(48.dp).debug())
+                val albumArtResource = currentSong?.albumArtUri?.let { asyncPainterResource(it) }
+                albumArtResource?.let {
+                    KamelImage(
+                        resource = { it },
+                        contentDescription = " Album art",
+                        modifier = Modifier.width(48.dp).height(48.dp)
+                    )
+                } ?: run {
+                    // todo: instead of debug box, use a default uri to an included missing icon file
+                    Box(modifier = Modifier.width(48.dp).height(48.dp).debug()) {
+                }
+
+                }
                 Column(
                     horizontalAlignment = Alignment.Start,
                     verticalArrangement = Arrangement.Center,
