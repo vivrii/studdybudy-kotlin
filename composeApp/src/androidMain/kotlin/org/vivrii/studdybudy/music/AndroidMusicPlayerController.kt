@@ -1,5 +1,9 @@
 package org.vivrii.studdybudy.music
 
+import android.content.Context
+import androidx.media3.common.MediaItem
+import androidx.media3.common.Player
+import androidx.media3.exoplayer.ExoPlayer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -7,40 +11,54 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
-class AndroidMusicPlayerController : MusicPlayerController {
-    private var musicPlayerState = MusicPlayerState(
-        isPlaying = true,
-        currentDurationMs = 4_000,
-        totalDurationMs = 10_000,
-    )
+class AndroidMusicPlayerController(context: Context) : MusicPlayerController {
+    private lateinit var _onStateChanged: () -> Unit
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
+    private var player = ExoPlayer.Builder(context).build()
+
     override fun play() {
-        musicPlayerState = musicPlayerState.copy(isPlaying = true)
+        if (player.isCommandAvailable(Player.COMMAND_PLAY_PAUSE)) {
+            player.play()
+        } // todo: throw error + user notification? + log if command not available
     }
 
     override fun pause() {
-        musicPlayerState = musicPlayerState.copy(isPlaying = false)
+        if (player.isCommandAvailable(Player.COMMAND_PLAY_PAUSE)) {
+            player.pause()
+        } // todo: throw error + user notification? + log if command not available
     }
 
     override fun seekTo(positionMs: Long) {
-        musicPlayerState = musicPlayerState.copy(currentDurationMs = positionMs)
+        if (player.isCommandAvailable(Player.COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM)) {
+            player.seekTo(positionMs)
+        } // todo: throw error + user notification? + log if command not available
+    }
+
+    override fun loadSong(songUri: String) {
+        if (player.isCommandAvailable(Player.COMMAND_SET_MEDIA_ITEM)) {
+            val mediaItem = MediaItem.fromUri(songUri)
+            player.setMediaItem(mediaItem)
+            player.prepare()
+        } // todo: throw error + user notification? + log if command not available
     }
 
     override fun observeState(onStateChanged: (MusicPlayerState) -> Unit) {
+        _onStateChanged = {
+            onStateChanged(
+                MusicPlayerState(
+                    isPlaying = player.isPlaying,
+                    currentDurationMs = player.currentPosition,
+                    totalDurationMs = player.duration
+                )
+            )
+        }
+
         scope.launch {
             while (isActive) {
-                onStateChanged(musicPlayerState)
+                _onStateChanged()
                 delay(250)
-                if (musicPlayerState.isPlaying) {
-                    musicPlayerState = musicPlayerState.copy(
-                        currentDurationMs = musicPlayerState
-                            .currentDurationMs
-                            .plus(250)
-                            .mod(musicPlayerState.totalDurationMs) // todo: div by zero protection
-                    )
-                }
             }
         }
     }

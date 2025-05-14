@@ -16,10 +16,10 @@ class MusicViewModel(private val controller: MusicPlayerController) {
 
     private val _currentSong = MutableStateFlow<Song?>(Song(
         // todo: set this null to begin with here when real data can be populated
-        title = "Leave Me Be",
-        artist = "Computerwife",
-        audioUri = "",
-        albumArtUri = ""
+        title = "その箱の中に入る。",
+        artist = "Rory in early 20s",
+        uri = "https://sharkinfestedserver.ddns.net/song.mp3",
+        albumArtUri = "https://i.scdn.co/image/ab67616d00001e02a2c008f576d66fa1b7b82050"
     ))
     val currentSong: StateFlow<Song?> = _currentSong
 
@@ -42,6 +42,8 @@ class MusicViewModel(private val controller: MusicPlayerController) {
     val repeatMode: StateFlow<Int> = _repeatMode
 
     init {
+        _currentSong.value?.uri?.let { controller.loadSong(it) } // todo: temporary placement here
+
         controller.observeState { newState ->
             _playerState.value = newState
         }

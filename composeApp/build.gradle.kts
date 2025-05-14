@@ -109,6 +109,7 @@ dependencies {
     implementation(libs.androidx.ui.unit.android)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.foundation.android)
+    implementation(libs.androidx.media3.exoplayer)
     debugImplementation(compose.uiTooling)
 }
 

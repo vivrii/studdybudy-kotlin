@@ -10,7 +10,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val viewModel = MusicViewModel(controller = AndroidMusicPlayerController())
+        val viewModel = MusicViewModel(controller = AndroidMusicPlayerController(this))
 
         setContent {
             App(viewModel = viewModel)
