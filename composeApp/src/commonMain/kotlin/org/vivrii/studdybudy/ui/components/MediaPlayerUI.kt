@@ -102,10 +102,10 @@ fun NowPlayingBar(
 @Composable
 private fun SongProgressIndicator(progress: Float, totalDurationMs: Long, isPlaying: Boolean) {
     var previousProgress by remember { mutableFloatStateOf(0.0f) }
-    val test = remember { Animatable(0.0f) }
+    val animatedProgress = remember { Animatable(0.0f) }
 
     LaunchedEffect(isPlaying) {
-        test.stop()
+        animatedProgress.stop()
     }
 
     LaunchedEffect(progress) {
@@ -115,15 +115,15 @@ private fun SongProgressIndicator(progress: Float, totalDurationMs: Long, isPlay
             previousProgress = progress
 
             if (resetAnimation) {
-                test.snapTo(
+                animatedProgress.snapTo(
                     targetValue = progress - PLAYER_STATE_UI_RATE.toFloat()/totalDurationMs,
                 )
-                test.animateTo(
+                animatedProgress.animateTo(
                     targetValue = progress,
                     animationSpec = tween(PLAYER_STATE_UI_RATE.toInt(), easing = LinearEasing)
                 )
             } else {
-                test.animateTo(
+                animatedProgress.animateTo(
                     targetValue = progress,
                     animationSpec = tween(
                         PLAYER_STATE_UI_RATE.toInt(),
@@ -135,7 +135,7 @@ private fun SongProgressIndicator(progress: Float, totalDurationMs: Long, isPlay
     }
 
     LinearProgressIndicator(
-        progress = test.value,
+        progress = animatedProgress.value,
         modifier = Modifier
             .fillMaxWidth()
             .clip(MaterialTheme.shapes.small.copy(topStart = CornerSize(0.dp)))
