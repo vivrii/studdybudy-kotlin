@@ -63,6 +63,7 @@ kotlin {
             implementation(libs.androidx.ui.unit.android)
             implementation(libs.androidx.ui.tooling.preview)
             implementation(libs.androidx.foundation.android)
+            implementation("media.kamel:kamel-image-default:1.0.5")
         }
         commonMain.dependencies {
             implementation(compose.runtime)
