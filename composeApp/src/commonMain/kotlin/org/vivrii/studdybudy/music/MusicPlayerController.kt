@@ -5,5 +5,6 @@ interface MusicPlayerController {
     fun pause()
     fun seekTo(positionMs: Long)
     fun loadSong(songUri: String)
+    fun repeatMode(repeat: Boolean)
     fun observeState(onStateChanged: (MusicPlayerState) -> Unit)
 }

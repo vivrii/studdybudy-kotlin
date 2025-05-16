@@ -78,6 +78,7 @@ class MusicViewModel(private val controller: MusicPlayerController) {
 
     fun repeatModeCycle() {
         _repeatMode.value = _repeatMode.value.plus(1).mod(3)
+        controller.repeatMode(repeat = _repeatMode.value == 1)
     }
 
     fun seekTo(positionMs: Long) {

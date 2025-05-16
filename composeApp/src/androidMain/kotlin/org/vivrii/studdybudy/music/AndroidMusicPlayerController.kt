@@ -36,6 +36,12 @@ class AndroidMusicPlayerController(context: Context) : MusicPlayerController {
         } // todo: throw error + user notification? + log if command not available
     }
 
+    override fun repeatMode(repeat: Boolean) {
+        if (player.isCommandAvailable(Player.COMMAND_SET_REPEAT_MODE)) {
+            player.repeatMode = if (repeat) Player.REPEAT_MODE_ONE else Player.REPEAT_MODE_OFF
+        }
+    }
+
     override fun loadSong(songUri: String) {
         if (player.isCommandAvailable(Player.COMMAND_SET_MEDIA_ITEM)) {
             val mediaItem = MediaItem.fromUri(songUri)
