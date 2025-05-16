@@ -58,7 +58,11 @@ class AndroidMusicPlayerController(context: Context) : MusicPlayerController {
         scope.launch {
             while (isActive) {
                 _onStateChanged()
-                delay(250)
+                if (player.isPlaying) {
+                    delay(100)
+                } else {
+                    delay(250)
+                }
             }
         }
     }

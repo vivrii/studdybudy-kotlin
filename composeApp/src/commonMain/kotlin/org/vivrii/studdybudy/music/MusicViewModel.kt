@@ -9,8 +9,15 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import org.vivrii.studdybudy.music.model.Song
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
+@OptIn(ExperimentalTime::class)
 class MusicViewModel(private val controller: MusicPlayerController) {
+    companion object {
+        const val PLAYER_STATE_UI_RATE = 1000L
+    }
+
     // todo: look into the common viewmodel: https://www.jetbrains.com/help/kotlin-multiplatform-dev/compose-viewmodel.html
     private val viewModelScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
@@ -41,11 +48,26 @@ class MusicViewModel(private val controller: MusicPlayerController) {
     private val _repeatMode = MutableStateFlow(0)
     val repeatMode: StateFlow<Int> = _repeatMode
 
+    private var lastUiRefreshMs = 0L
+    private var loopPointA = 3000L
+    private var loopPointB = 7500L
+
     init {
         _currentSong.value?.uri?.let { controller.loadSong(it) } // todo: temporary placement here
 
         controller.observeState { newState ->
-            _playerState.value = newState
+            if (_repeatMode.value == 2 && newState.currentDurationMs >= loopPointB) {
+                seekTo(loopPointA)
+            }
+
+            val timestamp = Clock.System.now().toEpochMilliseconds()
+            if (timestamp > lastUiRefreshMs + PLAYER_STATE_UI_RATE
+                || newState.isPlaying != _playerState.value.isPlaying
+                || newState.currentDurationMs < _playerState.value.currentDurationMs
+            ) {
+                _playerState.value = newState
+                lastUiRefreshMs = timestamp
+            }
         }
     }
 

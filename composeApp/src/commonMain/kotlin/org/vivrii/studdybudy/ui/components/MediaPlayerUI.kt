@@ -1,5 +1,8 @@
 package org.vivrii.studdybudy.ui.components
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -18,8 +21,12 @@ import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -29,6 +36,7 @@ import io.kamel.image.asyncPainterResource
 import org.jetbrains.compose.resources.vectorResource
 import org.vivrii.studdybudy.music.MusicPlayerState
 import org.vivrii.studdybudy.music.MusicViewModel
+import org.vivrii.studdybudy.music.MusicViewModel.Companion.PLAYER_STATE_UI_RATE
 import org.vivrii.studdybudy.music.model.Song
 import org.vivrii.studdybudy.ui.extensions.debug
 import studdybudy.composeapp.generated.resources.Res
@@ -86,15 +94,48 @@ fun NowPlayingBar(
                 RepeatIcon(repeatMode) { onClickRepeat() }
             }
 
-            SongProgressIndicator(progress)
+            SongProgressIndicator(progress, playerState.totalDurationMs, playerState.isPlaying)
         }
     }
 }
 
 @Composable
-private fun SongProgressIndicator(progress: Float) {
+private fun SongProgressIndicator(progress: Float, totalDurationMs: Long, isPlaying: Boolean) {
+    var previousProgress by remember { mutableFloatStateOf(0.0f) }
+    val test = remember { Animatable(0.0f) }
+
+    LaunchedEffect(isPlaying) {
+        test.stop()
+    }
+
+    LaunchedEffect(progress) {
+        if (isPlaying) {
+            val resetAnimation = progress < previousProgress
+
+            previousProgress = progress
+
+            if (resetAnimation) {
+                test.snapTo(
+                    targetValue = progress - PLAYER_STATE_UI_RATE.toFloat()/totalDurationMs,
+                )
+                test.animateTo(
+                    targetValue = progress,
+                    animationSpec = tween(PLAYER_STATE_UI_RATE.toInt(), easing = LinearEasing)
+                )
+            } else {
+                test.animateTo(
+                    targetValue = progress,
+                    animationSpec = tween(
+                        PLAYER_STATE_UI_RATE.toInt(),
+                        easing = LinearEasing
+                    )
+                )
+            }
+        }
+    }
+
     LinearProgressIndicator(
-        progress = progress,
+        progress = test.value,
         modifier = Modifier
             .fillMaxWidth()
             .clip(MaterialTheme.shapes.small.copy(topStart = CornerSize(0.dp)))
