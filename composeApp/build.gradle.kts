@@ -57,6 +57,12 @@ kotlin {
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
+            implementation(libs.androidx.media3.exoplayer)
+            implementation(libs.androidx.ui.graphics.android)
+            implementation(libs.androidx.ui.geometry.android)
+            implementation(libs.androidx.ui.unit.android)
+            implementation(libs.androidx.ui.tooling.preview)
+            implementation(libs.androidx.foundation.android)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -102,12 +108,6 @@ android {
 }
 
 dependencies {
-    implementation(libs.androidx.ui.graphics.android)
-    implementation(libs.androidx.ui.geometry.android)
-    implementation(libs.androidx.ui.unit.android)
-    implementation(libs.androidx.ui.tooling.preview)
-    implementation(libs.androidx.foundation.android)
-    implementation(libs.androidx.media3.exoplayer)
     debugImplementation(compose.uiTooling)
 }
 
