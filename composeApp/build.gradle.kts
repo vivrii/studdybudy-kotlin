@@ -1,5 +1,5 @@
+import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
-import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
@@ -75,8 +75,15 @@ kotlin {
             implementation(libs.kamel.image.default)
         }
         desktopMain.dependencies {
+            val platform = platformLib()
+            val javaFxVersion = "23"
+
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutines.swing)
+            implementation("org.openjfx:javafx-base:$javaFxVersion:$platform")
+            implementation("org.openjfx:javafx-media:$javaFxVersion:$platform")
+            implementation("org.openjfx:javafx-controls:$javaFxVersion:$platform")
+            implementation("org.openjfx:javafx-graphics:$javaFxVersion:$platform")
         }
     }
 }
@@ -121,5 +128,19 @@ compose.desktop {
             packageName = "org.vivrii.studdybudy"
             packageVersion = "1.0.0"
         }
+    }
+}
+
+fun platformLib(): String {
+    val os = DefaultNativePlatform.getCurrentOperatingSystem()
+    val arch = DefaultNativePlatform.getCurrentArchitecture().name
+
+    return when {
+        os.isWindows -> "win"
+        os.isMacOsX && arch == "aarch64" -> "mac-aarch64"
+        os.isMacOsX -> "mac"
+        os.isLinux && arch == "aarch64" -> "linux-aarch64"
+        os.isLinux -> "linux"
+        else -> error("Unsupported platform: OS=${os.name}, Arch=$arch")
     }
 }
